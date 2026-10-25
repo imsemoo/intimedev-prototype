@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "5"  # asset version: bump after CSS/JS changes
+V = "6"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
