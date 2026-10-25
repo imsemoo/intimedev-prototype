@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "4"  # asset version: bump after CSS/JS changes
+V = "5"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -199,7 +199,7 @@ def head(title, desc, r, extra_css=""):
 <link rel="preload" href="{r}assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
 {css}
-<script>document.documentElement.classList.add("js");try{{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+<script>(function(d){{d.classList.add("js");try{{var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){{sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");setTimeout(function(){{d.classList.remove("is-arriving")}},2500)}}}}catch(e){{}}}})(document.documentElement)</script>
 <script type="application/ld+json">{json.dumps(org)}</script>
 </head>'''
 
@@ -260,10 +260,20 @@ def footer(r):
 </footer>'''
 
 
+LOADER = """<div class="loader" aria-hidden="true">
+  <svg class="loader-mark" viewBox="0 0 64 64">
+    <g class="loader-shadow"><path d="M20 46L55 51.5A3 3 0 0 1 55 57.5L20 58Z"/></g>
+    <rect class="loader-stem" x="14" y="21" width="12" height="37" rx="6"/>
+    <circle class="loader-sun" cx="10" cy="10" r="7"/>
+  </svg>
+  <div class="loader-rule"><span></span></div>
+</div>"""
+
+
 def page(path, title, desc, active, body, extra_css="", base=None):
     depth = path.count("/")
     r = base if base is not None else "../" * depth
-    doc = (head(title, desc, r, extra_css) + "\n<body>\n" + header(active, r) + f'\n<main id="main">\n{body}\n</main>\n'
+    doc = (head(title, desc, r, extra_css) + "\n<body>\n" + LOADER + "\n" + header(active, r) + f'\n<main id="main">\n{body}\n</main>\n'
            + footer(r) + f'\n<script src="{r}assets/js/time.js?v={V}" defer></script>\n<script src="{r}assets/js/site.js?v={V}" defer></script>\n</body>\n</html>\n')
     out = ROOT / path
     out.parent.mkdir(parents=True, exist_ok=True)

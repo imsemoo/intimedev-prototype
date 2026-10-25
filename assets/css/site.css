@@ -421,12 +421,7 @@ p { margin: 0; text-wrap: pretty; }
   .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity var(--t-slow) var(--ease-sun), transform var(--t-slow) var(--ease-sun); transition-delay: calc(var(--i, 0) * 60ms); }
   .js .reveal.is-in { opacity: 1; transform: none; }
   .hero-copy > * { animation: rise 900ms var(--ease-sun) both; animation-delay: calc(var(--i, 0) * 90ms + 80ms); }
-  @view-transition { navigation: auto; }
-  ::view-transition-old(root) { animation: 220ms var(--ease-sun) both vt-out; }
-  ::view-transition-new(root) { animation: 420ms var(--ease-sun) both vt-in; }
 }
-@keyframes vt-out { to { opacity: 0; } }
-@keyframes vt-in { from { opacity: 0; transform: translateY(12px); } }
 
 /* Blueprint pulse: one orange grain of data travelling along one wire. */
 .bp .pulse { offset-rotate: 0deg; offset-distance: 55%; }
@@ -434,3 +429,20 @@ p { margin: 0; text-wrap: pretty; }
   .bp .pulse { animation: travel 2.6s var(--ease-sweep) infinite; }
 }
 @keyframes travel { 0% { offset-distance: 0%; opacity: 0; } 15%, 85% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+
+/* ---------- Page loader: the mark's shadow sweeps like a dial hand while the next page loads ---------- */
+.loader { position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; justify-items: center; gap: 28px; background: var(--bg); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 220ms var(--ease-sun), visibility 0s linear 220ms; }
+.is-leaving .loader, .is-arriving .loader { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 160ms var(--ease-sun), visibility 0s; }
+.loader-mark { width: 72px; height: 72px; overflow: visible; }
+.loader-stem { fill: var(--text); }
+.loader-sun { fill: var(--sun); }
+.loader-shadow { fill: var(--accent); transform-origin: 20px 52px; transform-box: view-box; }
+.loader-rule { position: relative; width: 132px; height: 8px; background: repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 11px) left top / calc(100% + 1px) 6px no-repeat; border-top: 1px solid var(--line); }
+.loader-rule span { position: absolute; left: 0; top: -1px; height: 2px; width: 100%; background: var(--text); transform-origin: left; transform: scaleX(0); }
+@media (prefers-reduced-motion: no-preference) {
+  .is-leaving .loader-shadow, .is-arriving .loader-shadow { animation: ld-sweep 1.1s var(--ease-sweep) infinite alternate; }
+  .is-leaving .loader-rule span, .is-arriving .loader-rule span { animation: ld-rule 1.6s var(--ease-sun) infinite; }
+}
+@media (prefers-reduced-motion: reduce) { .loader-rule span { transform: scaleX(0.6); } }
+@keyframes ld-sweep { from { transform: rotate(-12deg); } to { transform: rotate(62deg); } }
+@keyframes ld-rule { 0% { transform: scaleX(0); } 70% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }

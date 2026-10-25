@@ -45,7 +45,8 @@ Weight: no images, three self-hosted fonts (about 58 KB total), two small script
 ## Accessibility
 
 - Contrast checked for every text and control pair (table in brand.html#access).
-- Reduced motion turns off the sunrise, reveals, pulses and page transitions. The dial still shows live time.
+- Reduced motion turns off the sunrise, reveals, pulses and the loader animation. The dial still shows live time.
+- Page loader: shown only on internal navigation, never delays it, removed once fonts are ready (2.5 s failsafe), cleared on back/forward cache restore.
 - The dial is a labelled group with a description; its sun is a keyboard slider.
 - NOT VERIFIED: screen reader pass with NVDA or VoiceOver (not available in this environment); Safari and Firefox (only Chrome tested); iOS Safari zoom behaviour.
 

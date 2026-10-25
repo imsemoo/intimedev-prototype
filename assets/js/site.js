@@ -44,6 +44,27 @@
   $$("[data-day] li").forEach((li) => new IntersectionObserver(([e]) => { if (e.isIntersecting) li.classList.add("is-lit"); },
     { rootMargin: "0px 0px -45% 0px" }).observe(li));
 
+  // Page loader: shown on internal navigation and kept on the next page until its fonts are ready.
+  // It never delays navigation; the browser navigates at once and the loader only covers the wait.
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+    if ((a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
+    if (url.pathname === location.pathname && url.search === location.search) return;
+    try { sessionStorage.setItem("idv-nav", "1"); } catch (e) { /* storage blocked: no arrival cover */ }
+    root.classList.add("is-leaving");
+  });
+  if (root.classList.contains("is-arriving")) {
+    const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+    Promise.race([fonts, new Promise((r) => setTimeout(r, 700))]).then(() => {
+      setTimeout(() => root.classList.remove("is-arriving"), Math.max(0, 240 - performance.now()));
+    });
+  }
+  // The back/forward cache can restore a page with the cover still on.
+  window.addEventListener("pageshow", (ev) => { if (ev.persisted) root.classList.remove("is-leaving", "is-arriving"); });
+
   $$("[data-year]").forEach((el) => { el.textContent = new Date().getFullYear(); });
 
   // Estimate form: validate, then compose an email to the team (no server endpoint yet).

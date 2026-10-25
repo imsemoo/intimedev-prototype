@@ -13,11 +13,19 @@
 <link rel="icon" href="../assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../assets/css/tokens.css?v=4"><link rel="stylesheet" href="../assets/css/site.css?v=4">
-<script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="stylesheet" href="../assets/css/tokens.css?v=5"><link rel="stylesheet" href="../assets/css/site.css?v=5">
+<script>(function(d){d.classList.add("js");try{var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");setTimeout(function(){d.classList.remove("is-arriving")},2500)}}catch(e){}})(document.documentElement)</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Intimedev", "url": "https://intimedev.com/", "email": "info@intimedev.com", "telephone": "+20 115 388 6625", "areaServed": ["EG", "AU", "GB"]}</script>
 </head>
 <body>
+<div class="loader" aria-hidden="true">
+  <svg class="loader-mark" viewBox="0 0 64 64">
+    <g class="loader-shadow"><path d="M20 46L55 51.5A3 3 0 0 1 55 57.5L20 58Z"/></g>
+    <rect class="loader-stem" x="14" y="21" width="12" height="37" rx="6"/>
+    <circle class="loader-sun" cx="10" cy="10" r="7"/>
+  </svg>
+  <div class="loader-rule"><span></span></div>
+</div>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-head" data-head>
   <div class="wrap">
@@ -113,7 +121,7 @@
     <div class="foot-base"><span>© <span data-year>2026</span> Intimedev</span><span>Egypt · Australia · United Kingdom</span></div>
   </div>
 </footer>
-<script src="../assets/js/time.js?v=4" defer></script>
-<script src="../assets/js/site.js?v=4" defer></script>
+<script src="../assets/js/time.js?v=5" defer></script>
+<script src="../assets/js/site.js?v=5" defer></script>
 </body>
 </html>
