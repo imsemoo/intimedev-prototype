@@ -1,0 +1,120 @@
+/* Intimedev design tokens. Direction: Gnomon (docs/02-creative-direction.md).
+   Ink is the shadow side, Egyptian blue is the cast shadow, solar orange is the sun: "now". */
+
+@font-face { font-family: "Funnel Display"; src: url("../fonts/funnel-display.woff2") format("woff2"); font-weight: 300 800; font-display: swap; }
+@font-face { font-family: "Funnel Sans"; src: url("../fonts/funnel-sans.woff2") format("woff2"); font-weight: 300 800; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("../fonts/geist-mono.woff2") format("woff2"); font-weight: 400 600; font-display: swap; }
+
+:root {
+  /* Brand */
+  --ink: #0e1726;
+  --blue: #1034a6;          /* Egyptian blue */
+  --blue-strong: #0b2780;
+  --blue-soft: #e8ecfb;
+  --sun: #ff5a1f;           /* graphics and large type only on light */
+  --sun-text: #c2410c;      /* orange text on light backgrounds */
+
+  /* Neutrals (cool, never cream) */
+  --bg: #ffffff;
+  --surface: #f2f4f7;
+  --surface-2: #e7eaf0;
+  --line: #dde2e9;
+  --line-strong: #b9c1cd;
+  --line-input: #808a9c;    /* 3:1 for form controls */
+  --text: #0e1726;
+  --text-2: #475163;
+  --text-3: #5d6778;
+
+  /* Semantic */
+  --accent: var(--blue);
+  --accent-hover: var(--blue-strong);
+  --on-accent: #ffffff;
+  --success: #17795a;
+  --danger: #c8243a;
+  --focus: var(--blue);
+
+  /* Cast shadow: hard, directional. Offsets are set from the time in Cairo by time.js. */
+  --cast-x: 3px;
+  --cast-y: 4px;
+  --cast-color: var(--blue);
+
+  /* Type */
+  --font-display: "Funnel Display", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Funnel Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --fs-hero: clamp(2.6rem, 6vw, 5.6rem);
+  --fs-title: clamp(2.3rem, 4.8vw, 4.4rem);
+  --fs-h2: clamp(1.85rem, 3.3vw, 2.95rem);
+  --fs-h3: clamp(1.2rem, 1.6vw, 1.4rem);
+  --fs-lead: clamp(1.1rem, 1.45vw, 1.3rem);
+  --fs-body: 1.0625rem;
+  --fs-small: 0.9375rem;
+  --fs-label: 0.75rem;
+
+  /* Space: 4px base */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+  --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 144px;
+  --section: clamp(72px, 9vw, 128px);
+
+  /* Hour grid: 12 columns, one per daylight hour on the dial */
+  --wrap: 1320px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --col-gap: clamp(16px, 2vw, 28px);
+
+  /* Shape: the mark's rounded stem. Pills for what you press, 14px for panels, 8px for inputs. */
+  --r-pill: 999px;
+  --r-panel: 14px;
+  --r-input: 8px;
+
+  /* Motion */
+  --ease-sun: cubic-bezier(0.3, 0, 0.2, 1);     /* sunrise: slow start, long settle */
+  --ease-sweep: cubic-bezier(0.65, 0, 0.35, 1);  /* dial hand */
+  --t-quick: 160ms;
+  --t-base: 320ms;
+  --t-slow: 720ms;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0a101c;
+  --surface: #111a2a;
+  --surface-2: #18233a;
+  --line: #233049;
+  --line-strong: #3a4966;
+  --line-input: #5f6f8e;
+  --text: #eef1f6;
+  --text-2: #b8c1d1;
+  --text-3: #95a0b4;
+  --accent: #7d95ff;
+  --accent-hover: #a3b4ff;
+  --on-accent: #0a101c;
+  --blue-soft: #16224a;
+  --sun-text: #ff7a45;
+  --cast-color: #2a49c9;
+  --focus: #a3b4ff;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a101c;
+    --surface: #111a2a;
+    --surface-2: #18233a;
+    --line: #233049;
+    --line-strong: #3a4966;
+    --line-input: #5f6f8e;
+    --text: #eef1f6;
+    --text-2: #b8c1d1;
+    --text-3: #95a0b4;
+    --accent: #7d95ff;
+    --accent-hover: #a3b4ff;
+    --on-accent: #0a101c;
+    --blue-soft: #16224a;
+    --sun-text: #ff7a45;
+    --cast-color: #2a49c9;
+    --focus: #a3b4ff;
+    color-scheme: dark;
+  }
+}
