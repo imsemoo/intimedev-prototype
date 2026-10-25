@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "6"  # asset version: bump after CSS/JS changes
+V = "7"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -385,19 +385,22 @@ def home():
     </div>
     {dial_block()}
   </div>
-  <div class="wrap">
+  <div class="hero-base">
+    <div class="wrap">
     <ul class="hero-facts" aria-label="Intimedev in brief">
       <li><strong>14+ years</strong><span>building and supporting software</span></li>
       <li><strong>3 markets</strong><span>Egypt, Australia, United Kingdom</span></li>
       <li><strong>App to server</strong><span>code, hosting and support, one team</span></li>
       <li><strong>Years, not weeks</strong><span>most clients stay for years</span></li>
     </ul>
+    </div>
   </div>
 </section>
 
-<section class="section" aria-labelledby="cap-title" style="padding-top:0">
+<section class="section" aria-labelledby="cap-title">
   <div class="wrap">
-    {section_head('<span id="cap-title">We build it, connect it and keep it running.</span>', "Ten services, delivered by one experienced team for more than 14 years, for businesses in Egypt, Australia and the United Kingdom.")}
+    <div class="hour-rule" aria-hidden="true"></div>
+    {section_head('<span id="cap-title">We build it, connect it and keep it running.</span>', "Ten services, delivered by one experienced team for more than 14 years, for businesses in Egypt, Australia and the United Kingdom.", "What we do")}
     {cap_groups(r)}
   </div>
 </section>

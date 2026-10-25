@@ -122,16 +122,19 @@ html:has(.menu[open]) { overflow: hidden; }
 .band { background: var(--surface); }
 
 /* ---------- Hero ---------- */
-.hero { padding-block: clamp(24px, 3vw, 40px) clamp(48px, 6vw, 80px); }
-.hero .wrap:first-child { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; }
+.hero { padding-top: clamp(24px, 3vw, 40px); }
+.hero > .wrap:first-child { padding-bottom: clamp(40px, 5vw, 64px); }
+.hero > .wrap:first-child { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; }
 .hero h1 { font-size: var(--fs-hero); line-height: 0.98; letter-spacing: -0.035em; max-width: 11ch; }
 .hero .lead { margin-top: var(--s-5); max-width: 44ch; }
 .hero .actions { margin-top: var(--s-6); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5); }
-.hero-facts { list-style: none; margin: clamp(32px, 4vw, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--col-gap); }
-.hero-facts li { display: grid; gap: 4px; padding-top: var(--s-4); border-top: 2px solid var(--text); }
-.hero-facts strong { font: 700 clamp(1.25rem, 1.8vw, 1.6rem)/1.1 var(--font-display); letter-spacing: -0.02em; }
+/* The hero ends on its own grey strip, so it reads as finished before the next section starts. */
+.hero-base { background: var(--surface); border-top: 1px solid var(--line); }
+.hero-facts { list-style: none; margin: 0; padding: clamp(20px, 2.4vw, 28px) 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--col-gap); }
+.hero-facts li { display: grid; gap: 2px; align-content: start; padding-inline-start: var(--s-4); border-inline-start: 1px solid var(--line-strong); }
+.hero-facts strong { font: 600 clamp(1.05rem, 1.3vw, 1.2rem)/1.25 var(--font-display); letter-spacing: -0.01em; }
 .hero-facts span { color: var(--text-2); font-size: var(--fs-small); }
-@media (max-width: 900px) { .hero .wrap:first-child { grid-template-columns: 1fr; } .hero .dial-block { order: 2; } .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--s-5); } }
+@media (max-width: 900px) { .hero > .wrap:first-child { grid-template-columns: 1fr; } .hero .dial-block { order: 2; } .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--s-5); } }
 
 /* The dial */
 .dial-block { display: grid; gap: var(--s-3); }
