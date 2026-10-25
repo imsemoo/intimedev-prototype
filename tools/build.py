@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "9"  # asset version: bump after CSS/JS changes
+V = "11"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -175,7 +175,7 @@ def blueprint_svg(bp, uid):
 
 # ---------------------------------------------------------------- layout
 
-def head(title, desc, r, extra_css=""):
+def head(title, desc, r, extra_css="", og_path="", og_name="index"):
     css = f'<link rel="stylesheet" href="{r}assets/css/tokens.css?v={V}"><link rel="stylesheet" href="{r}assets/css/site.css?v={V}">'
     if extra_css:
         css += f'<link rel="stylesheet" href="{r}assets/css/{extra_css}?v={V}">'
@@ -196,6 +196,13 @@ def head(title, desc, r, extra_css=""):
 <meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Intimedev">
+<meta property="og:url" content="{C.SITE_URL}{og_path}">
+<meta property="og:image" content="{C.SITE_URL}assets/og/{og_name}.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{e(title)}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="{r}assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="{r}assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
@@ -274,7 +281,9 @@ LOADER = """<div class="loader" aria-hidden="true">
 def page(path, title, desc, active, body, extra_css="", base=None):
     depth = path.count("/")
     r = base if base is not None else "../" * depth
-    doc = (head(title, desc, r, extra_css) + "\n<body>\n" + LOADER + "\n" + header(active, r) + f'\n<main id="main">\n{body}\n</main>\n'
+    og_path = "" if path == "index.html" else path
+    og_name = "index" if path == "404.html" else path.replace("/", "-").removesuffix(".html")
+    doc = (head(title, desc, r, extra_css, og_path, og_name) + "\n<body>\n" + LOADER + "\n" + header(active, r) + f'\n<main id="main">\n{body}\n</main>\n'
            + footer(r) + f'\n<script src="{r}assets/js/time.js?v={V}" defer></script>\n<script src="{r}assets/js/site.js?v={V}" defer></script>\n</body>\n</html>\n')
     out = ROOT / path
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -652,6 +661,10 @@ def about_page():
 
 def contact_page():
     r = ""
+    sending = bool(C.FORM_ENDPOINT)
+    FOOT_NOTE = (f"Your details go only to the Intimedev team at {C.EMAIL}. We reply within one business day." if sending
+                 else f"Sending opens your email app with this message addressed to {C.EMAIL}. Nothing is stored on this website.")
+    SUBMIT_LABEL = "Send request" if sending else "Prepare my email"
     opts = "".join(f'<option value="{s["slug"]}">{e(s["name"])}</option>' for s in C.SERVICES)
     body = f'''<section class="page-head">
   <div class="wrap">
@@ -673,7 +686,7 @@ def contact_page():
       </ul>
       <p class="copy" style="font-size:var(--fs-small)">Serving Egypt, Australia and the United Kingdom.</p>
     </div>
-    <form class="form reveal" style="--i:1" data-estimate novalidate aria-labelledby="form-title">
+    <form class="form reveal" style="--i:1" data-estimate data-endpoint="{e(C.FORM_ENDPOINT)}" novalidate aria-labelledby="form-title">
       <h2 id="form-title" class="full" style="grid-column:1/-1;font-size:clamp(1.4rem,2.2vw,1.8rem)">Request a project estimate</h2>
       <div class="field"><label for="f-name">Name <span class="req" aria-hidden="true">*</span></label><input id="f-name" name="name" autocomplete="name" required aria-describedby="e-name"><span class="error" id="e-name">Please tell us your name.</span></div>
       <div class="field"><label for="f-company">Company</label><input id="f-company" name="company" autocomplete="organization"></div>
@@ -681,9 +694,16 @@ def contact_page():
       <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
       <div class="field full"><label for="f-service">Service required</label><select id="f-service" name="service"><option value="">Select a service</option>{opts}<option value="other">Something else</option></select></div>
       <div class="field full"><label for="f-desc">Project description <span class="req" aria-hidden="true">*</span></label><textarea id="f-desc" name="description" required aria-describedby="h-desc e-desc"></textarea><span class="hint" id="h-desc">What should the system do? Is there an existing system?</span><span class="error" id="e-desc">A few lines about the project help us reply properly.</span></div>
+      <div class="hp" aria-hidden="true"><label>Leave this field empty <input name="_honey" tabindex="-1" autocomplete="off"></label></div>
+      <p class="form-alert" data-send-error role="alert" hidden>We could not send your request just now. Your email app or WhatsApp will reach us directly: <button class="link-btn" type="button" data-fallback>open it in your email app</button>.</p>
       <div class="form-foot">
-        <small>Sending opens your email app with this message addressed to {C.EMAIL}. Nothing is stored on this website.</small>
-        <button class="btn btn-primary" type="submit">Prepare my email {icon("arrow")}</button>
+        <small>{FOOT_NOTE}</small>
+        <button class="btn btn-primary" type="submit" data-submit><span data-submit-label>{SUBMIT_LABEL}</span> {icon("arrow")}</button>
+      </div>
+      <div class="form-done" data-sent hidden tabindex="-1">
+        <h3 style="--i:0">Thank you. Your request is with our team.</h3>
+        <p class="copy" style="--i:1">We reply within one business day, usually sooner during Cairo working hours. If it is urgent, message us on <a href="{C.WHATSAPP}" rel="noopener">WhatsApp</a>.</p>
+        <div class="row" style="--i:2"><button class="btn btn-line" type="button" data-again>Send another request</button></div>
       </div>
       <div class="form-done" data-done hidden tabindex="-1">
         <h3 style="--i:0">Your email is ready.</h3>

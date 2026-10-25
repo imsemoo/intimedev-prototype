@@ -6,6 +6,13 @@ PHONE = "+20 115 388 6625"
 PHONE_HREF = "+201153886625"
 WHATSAPP = "https://wa.me/201153886625"
 
+# Where the site is published; used for absolute Open Graph URLs. Change to https://intimedev.com/ at launch.
+SITE_URL = "https://imsemoo.github.io/intimedev-prototype/"
+
+# JSON form endpoint (Formspree "https://formspree.io/f/<id>", Web3Forms, FormSubmit ajax, or Intimedev's own API).
+# Empty: the estimate form composes an email in the visitor's mail app instead of sending.
+FORM_ENDPOINT = ""
+
 MARKETS = [
     {"city": "Cairo", "country": "Egypt", "tz": "Africa/Cairo", "weekend": "Fri Sat",
      "note": "Our home base, with local presence and regional business understanding."},

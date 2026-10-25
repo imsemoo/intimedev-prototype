@@ -10,10 +10,17 @@
 <meta property="og:title" content="Contact | Intimedev">
 <meta property="og:description" content="Request a project estimate from Intimedev by email, phone or WhatsApp. We reply within one business day.">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Intimedev">
+<meta property="og:url" content="https://imsemoo.github.io/intimedev-prototype/contact.html">
+<meta property="og:image" content="https://imsemoo.github.io/intimedev-prototype/assets/og/contact.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Contact | Intimedev">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=9"><link rel="stylesheet" href="assets/css/site.css?v=9">
+<link rel="stylesheet" href="assets/css/tokens.css?v=11"><link rel="stylesheet" href="assets/css/site.css?v=11">
 <script>(function(d){d.classList.add("js");setTimeout(function(){if(!d.classList.contains("io"))d.classList.remove("js")},2500);try{var p=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hourCycle:"h23",hour:"2-digit",minute:"2-digit"}).formatToParts(new Date()),g=function(k){return +p.find(function(x){return x.type==k}).value},h=g("hour")+g("minute")/60,c=Math.min(18,Math.max(6,h)),day=h>=6&&h<18,a=(180-(c-6)*15)*Math.PI/180,l=2.5+3*Math.abs(Math.cos(a)),s=d.style,q=function(n){return (Math.round(n*2)/2).toFixed(1)};s.setProperty("--cast-x",day?q(-Math.cos(a)*l)+"px":"0px");s.setProperty("--cast-y",day?q(Math.sin(a)*l+1.5)+"px":"0px");s.setProperty("--now-pos",q((c-6)/12*100));s.setProperty("--now-on",day?"1":"0");d.dataset.daylight=day?"day":"night";var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");s.setProperty("--ld-phase",-(Date.now()%1400)+"ms");setTimeout(function(){d.classList.remove("is-arriving")},2500)}}catch(e){}})(document.documentElement)</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Intimedev", "url": "https://intimedev.com/", "email": "info@intimedev.com", "telephone": "+20 115 388 6625", "areaServed": ["EG", "AU", "GB"]}</script>
 </head>
@@ -73,7 +80,7 @@
       </ul>
       <p class="copy" style="font-size:var(--fs-small)">Serving Egypt, Australia and the United Kingdom.</p>
     </div>
-    <form class="form reveal" style="--i:1" data-estimate novalidate aria-labelledby="form-title">
+    <form class="form reveal" style="--i:1" data-estimate data-endpoint="" novalidate aria-labelledby="form-title">
       <h2 id="form-title" class="full" style="grid-column:1/-1;font-size:clamp(1.4rem,2.2vw,1.8rem)">Request a project estimate</h2>
       <div class="field"><label for="f-name">Name <span class="req" aria-hidden="true">*</span></label><input id="f-name" name="name" autocomplete="name" required aria-describedby="e-name"><span class="error" id="e-name">Please tell us your name.</span></div>
       <div class="field"><label for="f-company">Company</label><input id="f-company" name="company" autocomplete="organization"></div>
@@ -81,9 +88,16 @@
       <div class="field"><label for="f-phone">Phone</label><input id="f-phone" name="phone" type="tel" autocomplete="tel"></div>
       <div class="field full"><label for="f-service">Service required</label><select id="f-service" name="service"><option value="">Select a service</option><option value="web-applications">Custom web applications</option><option value="mobile-applications">Mobile applications</option><option value="erp-business-systems">ERP and business systems</option><option value="e-commerce">E-commerce</option><option value="e-learning">E-learning platforms</option><option value="ai-integrations">AI integrations</option><option value="api-integrations">API and third-party integrations</option><option value="file-document-systems">File storage and document systems</option><option value="server-administration">Server and Linux administration</option><option value="maintenance-support">Maintenance and technical support</option><option value="other">Something else</option></select></div>
       <div class="field full"><label for="f-desc">Project description <span class="req" aria-hidden="true">*</span></label><textarea id="f-desc" name="description" required aria-describedby="h-desc e-desc"></textarea><span class="hint" id="h-desc">What should the system do? Is there an existing system?</span><span class="error" id="e-desc">A few lines about the project help us reply properly.</span></div>
+      <div class="hp" aria-hidden="true"><label>Leave this field empty <input name="_honey" tabindex="-1" autocomplete="off"></label></div>
+      <p class="form-alert" data-send-error role="alert" hidden>We could not send your request just now. Your email app or WhatsApp will reach us directly: <button class="link-btn" type="button" data-fallback>open it in your email app</button>.</p>
       <div class="form-foot">
         <small>Sending opens your email app with this message addressed to info@intimedev.com. Nothing is stored on this website.</small>
-        <button class="btn btn-primary" type="submit">Prepare my email <svg class="ico" aria-hidden="true"><use href="assets/icons/icons.svg#arrow"/></svg></button>
+        <button class="btn btn-primary" type="submit" data-submit><span data-submit-label>Prepare my email</span> <svg class="ico" aria-hidden="true"><use href="assets/icons/icons.svg#arrow"/></svg></button>
+      </div>
+      <div class="form-done" data-sent hidden tabindex="-1">
+        <h3 style="--i:0">Thank you. Your request is with our team.</h3>
+        <p class="copy" style="--i:1">We reply within one business day, usually sooner during Cairo working hours. If it is urgent, message us on <a href="https://wa.me/201153886625" rel="noopener">WhatsApp</a>.</p>
+        <div class="row" style="--i:2"><button class="btn btn-line" type="button" data-again>Send another request</button></div>
       </div>
       <div class="form-done" data-done hidden tabindex="-1">
         <h3 style="--i:0">Your email is ready.</h3>
@@ -116,7 +130,7 @@
     <div class="foot-base"><span>© <span data-year>2026</span> Intimedev</span><span>Egypt · Australia · United Kingdom</span></div>
   </div>
 </footer>
-<script src="assets/js/time.js?v=9" defer></script>
-<script src="assets/js/site.js?v=9" defer></script>
+<script src="assets/js/time.js?v=11" defer></script>
+<script src="assets/js/site.js?v=11" defer></script>
 </body>
 </html>

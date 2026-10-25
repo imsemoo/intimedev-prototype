@@ -27,7 +27,7 @@ Home, Services, 10 service pages, Work, About, Contact, Brand guidelines, 404.
 | Contact: valid submit composes the email, shows the preview, prefills WhatsApp | Pass |
 | Mobile menu: native modal dialog, Escape closes, focus returns | Pass |
 
-**The form does not post to a server.** On submit it opens the visitor's email app with the message addressed to info@intimedev.com and offers copy and WhatsApp. The page says this next to the button. A real endpoint is still needed.
+The form now has a real sending flow (JSON POST, loading state, success panel, error message with email/WhatsApp fallback, honeypot), tested against a mocked endpoint for success, HTTP 500, network failure and a bot submission. **It is not connected yet:** `FORM_ENDPOINT` is empty until Intimedev chooses a form service or API, so today it still composes the email in the visitor's mail app. No real message has been sent to info@intimedev.com.
 
 ## Lighthouse (local, simulated throttling)
 
@@ -57,9 +57,9 @@ Audited from four angles (craft, missing motion, performance, accessibility and 
 ## Known limitations and remaining work
 
 1. No real portfolio, testimonials, team photos or founding year: the site uses verified facts and clearly labelled blueprints only (see docs/01, section 7).
-2. Contact form needs a backend or form service.
+2. Contact form needs a form service endpoint (`FORM_ENDPOINT`); the sending flow is built and tested with a mock.
 3. Privacy policy and terms pages are not written (legal text must come from the company).
-4. `noindex` must be removed, and canonical URLs and an Open Graph image added, at launch.
+4. `noindex` must be removed, and canonical URLs, sitemap.xml and robots.txt added, at launch. Open Graph images now exist for every page (assets/og/, 1200x630).
 5. The new logo replaces the current one: needs the company's approval.
 6. English only. An Arabic version needs an Arabic typeface chosen on real copy, plus RTL review.
 7. The no-JavaScript dial uses late-October time-zone offsets; with JavaScript it is always live.

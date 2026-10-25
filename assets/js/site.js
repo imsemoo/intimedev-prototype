@@ -147,28 +147,91 @@
     $$("[required]", form).forEach((input) => input.addEventListener("blur", () => { if (input.value) check(input); }));
     form.addEventListener("input", (ev) => { if (ev.target.closest(".is-invalid")) check(ev.target); });
 
-    form.addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const bad = $$("[required]", form).filter((input) => !check(input));
-      if (bad.length) { bad[0].focus(); return; }
-      const data = Object.fromEntries(new FormData(form));
+    // With an endpoint the request is sent as JSON; without one (or if sending fails) the visitor's
+    // email app opens with the message ready.
+    const sent = $("[data-sent]", form);
+    const alertBox = $("[data-send-error]", form);
+    const submit = $("[data-submit]", form);
+    const submitLabel = $("[data-submit-label]", form);
+    const submitText = submitLabel.textContent;
+    let lastMessage = null;
+
+    const compose = (data) => {
       const service = select.value ? select.options[select.selectedIndex].text : "Not specified";
       const subject = `Project estimate request${data.company ? ` from ${data.company}` : ""}`;
       const body = [
         `Name: ${data.name}`, `Company: ${data.company || "-"}`, `Email: ${data.email}`, `Phone: ${data.phone || "-"}`,
         `Service: ${service}`, "", "Project description:", data.description,
       ].join("\n");
+      return { service, subject, body };
+    };
+    const openEmail = ({ subject, body }) => {
       preview.textContent = `To: ${email}\nSubject: ${subject}\n\n${body}`;
       $("[data-wa]", form).href = `https://wa.me/201153886625?text=${encodeURIComponent(`${subject}\n\n${body}`)}`;
+      alertBox.hidden = true;
       form.classList.add("is-done");
       done.hidden = false;
       done.focus();
       location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+    const showSent = () => {
+      alertBox.hidden = true;
+      form.classList.add("is-done");
+      sent.hidden = false;
+      sent.focus();
+    };
+    const busy = (on) => {
+      submit.disabled = on;
+      submit.setAttribute("aria-busy", String(on));
+      submitLabel.textContent = on ? "Sending" : submitText;
+    };
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      if (submit.disabled) return;
+      const bad = $$("[required]", form).filter((input) => !check(input));
+      if (bad.length) { bad[0].focus(); return; }
+      const data = Object.fromEntries(new FormData(form));
+      const honey = data._honey;
+      delete data._honey;
+      const message = compose(data);
+      lastMessage = message;
+      const endpoint = form.dataset.endpoint;
+      if (!endpoint) { openEmail(message); return; }
+      if (honey) { showSent(); return; }            // a bot filled the hidden field: accept quietly, send nothing
+      alertBox.hidden = true;
+      busy(true);
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ ...data, service: message.service, _subject: message.subject, _replyto: data.email }),
+          signal: ctrl.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        showSent();
+      } catch (e) {
+        alertBox.hidden = false;
+      } finally {
+        clearTimeout(timer);
+        busy(false);
+      }
+    });
+
+    $("[data-fallback]", form).addEventListener("click", () => { if (lastMessage) openEmail(lastMessage); });
+    $("[data-again]", form).addEventListener("click", () => {
+      form.reset();
+      form.classList.remove("is-done");
+      sent.hidden = true;
+      $("#f-name", form).focus();
     });
 
     $("[data-edit]", form).addEventListener("click", () => {
       form.classList.remove("is-done");
       done.hidden = true;
+      sent.hidden = true;
       $("#f-desc", form).focus();
     });
     const copyBtn = $("[data-copy]", form);
