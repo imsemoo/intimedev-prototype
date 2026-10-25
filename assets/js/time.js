@@ -74,7 +74,7 @@
 
   // ---------------------------------------------------------------- dial
 
-  const CX = 280, CY = 280, SKY_RX = 236, SKY_RY = 150;
+  const CX = 280, CY = 280, SKY_RX = 236, SKY_RY = 236;
   const BAND_R = { cairo: 202, sydney: 180, london: 158 };
   const polar = (r, deg) => {
     const a = (deg * Math.PI) / 180;
@@ -191,7 +191,7 @@
     }
     svg.addEventListener("pointerdown", (ev) => {
       const p = ev.target;
-      if (p === hit || p.closest(".sun-hit") || ev.offsetY < svg.getBoundingClientRect().height * 0.42) start(ev);
+      if (p === hit || p.closest(".sun-hit") || ev.offsetY < svg.getBoundingClientRect().height * 0.5) start(ev);
     });
     svg.addEventListener("pointermove", (ev) => { if (dragging) render(Math.round(fromPointer(ev) * 4) / 4, false); });
     const stop = () => { dragging = false; svg.classList.remove("is-dragging"); };

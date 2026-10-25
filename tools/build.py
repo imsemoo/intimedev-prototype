@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "3"  # asset version: bump after CSS/JS changes
+V = "4"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -28,8 +28,8 @@ def icon(name, cls="ico", r=""):
 # ---------------------------------------------------------------- dial
 
 CX, CY, R_PLATE = 280, 280, 230
-# The sun travels a flattened arc so the dial stays compact: no empty dome above the plate.
-SKY_RX, SKY_RY = 236, 150
+# The sun travels a circle just outside the plate, concentric with the dial.
+SKY_RX, SKY_RY = 236, 236
 BANDS = [("cairo", "CAI", 202), ("sydney", "SYD", 180), ("london", "LON", 158)]
 
 
@@ -90,7 +90,7 @@ def dial_svg(t=10.0):
         bands.append(f'<path class="band{" is-cairo" if key == "cairo" else ""}" data-city="{key}" d="{d}"/>')
     sky_d = arc_points_sky()
     shadow = shadow_path(t)
-    return f'''<svg class="dial" viewBox="30 112 500 428" role="group" aria-labelledby="dial-title dial-desc">
+    return f'''<svg class="dial" viewBox="30 30 500 512" role="group" aria-labelledby="dial-title dial-desc">
   <title id="dial-title">Working hours across Cairo, Sydney and London</title>
   <desc id="dial-desc">A sundial. The sun shows the time in Cairo; its shadow sweeps the plate. The arcs show typical business hours (09:00 to 17:00 local) in each city, drawn in Cairo time. Use the sun handle to move through the day.</desc>
   <path class="plate" d="M{CX - R_PLATE} {CY} A{R_PLATE} {R_PLATE} 0 0 0 {CX + R_PLATE} {CY} Z"/>
