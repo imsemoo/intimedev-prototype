@@ -55,7 +55,7 @@
   /* Space: 4px base */
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
   --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 144px;
-  --section: clamp(72px, 9vw, 128px);
+  --section: clamp(64px, 7.5vw, 104px);
 
   /* Hour grid: 12 columns, one per daylight hour on the dial */
   --wrap: 1320px;

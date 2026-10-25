@@ -66,7 +66,7 @@
       const weekend = (el.dataset.weekend || "Sat Sun").split(" ").includes(z.weekday);
       const on = !weekend && z.hours >= 9 && z.hours < 17;
       el.querySelector(".time").textContent = z.label;
-      el.querySelector(".state").textContent = weekend ? "Weekend" : on ? "Business hours" : "After hours";
+      el.querySelector(".state").textContent = weekend ? "Weekend" : on ? "Open now" : "After hours";
       el.classList.toggle("is-on", on);
     });
     return t;
@@ -74,13 +74,17 @@
 
   // ---------------------------------------------------------------- dial
 
-  const CX = 280, CY = 280, R_SKY = 250;
+  const CX = 280, CY = 280, SKY_RX = 236, SKY_RY = 150;
   const BAND_R = { cairo: 202, sydney: 180, london: 158 };
   const polar = (r, deg) => {
     const a = (deg * Math.PI) / 180;
     return [CX + r * Math.cos(a), CY - r * Math.sin(a)];
   };
   const shadowAngle = (t) => -(t - 6) * 15;
+  const sky = (deg) => {
+    const a = (deg * Math.PI) / 180;
+    return [CX + SKY_RX * Math.cos(a), CY - SKY_RY * Math.sin(a)];
+  };
 
   function arcPath(r, t1, t2, steps = 24) {
     let d = "";
@@ -138,7 +142,7 @@
       const day = time >= 6 && time < 18;
       svg.classList.toggle("is-night", live && !day);
       const shown = Math.min(18, Math.max(6, time));
-      const [sx, sy] = polar(R_SKY, sunAngle(shown));
+      const [sx, sy] = sky(sunAngle(shown));
       for (const el of [sun, hit, ring]) { el.setAttribute("cx", sx.toFixed(1)); el.setAttribute("cy", sy.toFixed(1)); }
       shadow.setAttribute("d", shadowPath(shown));
 
@@ -154,7 +158,7 @@
         const lh = ((local % 24) + 24) % 24;
         const on = !weekend && lh >= 9 && lh < 17;
         el.querySelector(".time").textContent = fmt(local);
-        el.querySelector(".state").textContent = weekend ? "Weekend" : on ? "Business hours" : "After hours";
+        el.querySelector(".state").textContent = weekend ? "Weekend" : on ? "Open now" : "After hours";
         el.classList.toggle("is-on", on);
         bands.forEach((b) => { if (b.dataset.tz === el.dataset.tz) b.classList.toggle("is-on", on); });
         texts.push(`${fmt(local)} in ${label}`);
@@ -172,7 +176,7 @@
       const pt = svg.createSVGPoint();
       pt.x = ev.clientX; pt.y = ev.clientY;
       const p = pt.matrixTransform(svg.getScreenCTM().inverse());
-      let deg = (Math.atan2(CY - p.y, p.x - CX) * 180) / Math.PI;
+      let deg = (Math.atan2((CY - p.y) / SKY_RY, (p.x - CX) / SKY_RX) * 180) / Math.PI;
       if (deg < 0) deg = p.x < CX ? 180 : 0;       // below the horizon: clamp to the nearest end
       return 6 + (180 - deg) / 15;
     }
@@ -187,7 +191,7 @@
     }
     svg.addEventListener("pointerdown", (ev) => {
       const p = ev.target;
-      if (p === hit || p.closest(".sun-hit") || ev.offsetY < svg.getBoundingClientRect().height * 0.55) start(ev);
+      if (p === hit || p.closest(".sun-hit") || ev.offsetY < svg.getBoundingClientRect().height * 0.42) start(ev);
     });
     svg.addEventListener("pointermove", (ev) => { if (dragging) render(Math.round(fromPointer(ev) * 4) / 4, false); });
     const stop = () => { dragging = false; svg.classList.remove("is-dragging"); };

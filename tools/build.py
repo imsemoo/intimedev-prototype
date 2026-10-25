@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "2"  # asset version: bump after CSS/JS changes
+V = "3"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -27,7 +27,9 @@ def icon(name, cls="ico", r=""):
 
 # ---------------------------------------------------------------- dial
 
-CX, CY, R_SKY, R_PLATE = 280, 280, 250, 230
+CX, CY, R_PLATE = 280, 280, 230
+# The sun travels a flattened arc so the dial stays compact: no empty dome above the plate.
+SKY_RX, SKY_RY = 236, 150
 BANDS = [("cairo", "CAI", 202), ("sydney", "SYD", 180), ("london", "LON", 158)]
 
 
@@ -65,7 +67,7 @@ def band_segments(delta):
 
 def dial_svg(t=10.0):
     a_sun = 180 - (t - 6) * 15
-    sx, sy = polar(R_SKY, a_sun)
+    sx, sy = sky(a_sun)
     hours = []
     for h in range(6, 19):
         x1, y1 = polar(40, shadow_angle(h))
@@ -73,8 +75,11 @@ def dial_svg(t=10.0):
         major = " major" if h % 3 == 0 else ""
         hours.append(f'<line class="hour{major}" x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}"/>')
         if h % 3 == 0:
-            lx, ly = polar(R_PLATE + 16, shadow_angle(h))
-            anchor = "start" if h == 6 else "end" if h == 18 else "middle"
+            # 06 and 18 sit just under the horizon so the line never strikes through them.
+            lx, ly = polar(R_PLATE + 18, shadow_angle(h))
+            if h in (6, 18):
+                lx, ly = (CX + R_PLATE - 4, CY + 20) if h == 6 else (CX - R_PLATE + 4, CY + 20)
+            anchor = "end" if h == 6 else "start" if h == 18 else "middle"
             hours.append(f'<text class="hour-label" x="{lx:.1f}" y="{ly + 4:.1f}" text-anchor="{anchor}">{h:02d}</text>')
     deltas = offsets_now()
     bands = []
@@ -83,16 +88,16 @@ def dial_svg(t=10.0):
         d = " ".join(arc_points(r, a, b) for a, b in segs)
         bands.append(f'<path class="band-track" d="{arc_points(r, 6, 18)}"/>')
         bands.append(f'<path class="band{" is-cairo" if key == "cairo" else ""}" data-city="{key}" d="{d}"/>')
-    sky = arc_points_sky()
+    sky_d = arc_points_sky()
     shadow = shadow_path(t)
-    return f'''<svg class="dial" viewBox="0 0 560 540" role="group" aria-labelledby="dial-title dial-desc">
+    return f'''<svg class="dial" viewBox="30 112 500 428" role="group" aria-labelledby="dial-title dial-desc">
   <title id="dial-title">Working hours across Cairo, Sydney and London</title>
   <desc id="dial-desc">A sundial. The sun shows the time in Cairo; its shadow sweeps the plate. The arcs show typical business hours (09:00 to 17:00 local) in each city, drawn in Cairo time. Use the sun handle to move through the day.</desc>
   <path class="plate" d="M{CX - R_PLATE} {CY} A{R_PLATE} {R_PLATE} 0 0 0 {CX + R_PLATE} {CY} Z"/>
   {"".join(hours)}
   {"".join(bands)}
-  <path class="sky" d="{sky}"/>
-  <line class="horizon" x1="10" y1="{CY}" x2="550" y2="{CY}"/>
+  <path class="sky" d="{sky_d}"/>
+  <line class="horizon" x1="30" y1="{CY}" x2="530" y2="{CY}"/>
   <path class="shadow" d="{shadow}"/>
   <rect class="stem" x="{CX - 7}" y="{CY - 92}" width="14" height="92" rx="7"/>
   <circle class="sun" cx="{sx:.1f}" cy="{sy:.1f}" r="14"/>
@@ -101,8 +106,13 @@ def dial_svg(t=10.0):
 </svg>'''
 
 
+def sky(deg):
+    a = math.radians(deg)
+    return CX + SKY_RX * math.cos(a), CY - SKY_RY * math.sin(a)
+
+
 def arc_points_sky(steps=48):
-    pts = [polar(R_SKY, 180 - 180 * i / steps) for i in range(steps + 1)]
+    pts = [sky(180 - 180 * i / steps) for i in range(steps + 1)]
     return "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts)
 
 
@@ -343,8 +353,8 @@ def blueprint_cards(r, lead=True):
         cls = "is-lead" if i == 0 and lead else "is-wide"
         cards.append(f'''<a class="bp-card {cls} reveal" style="--i:{i}" href="{r}work.html#{bp["slug"]}">
   <div class="bp-figure">{blueprint_svg(bp, i)}</div>
-  <div class="meta"><span class="label">Blueprint</span>{icon("arrow", r=r)}</div>
-  <h3>{e(bp["name"])}</h3><p>{e(bp["summary"])}</p></a>''')
+  <div class="bp-text"><div class="meta"><span class="label">Blueprint</span>{icon("arrow", r=r)}</div>
+  <h3>{e(bp["name"])}</h3><p>{e(bp["summary"])}</p></div></a>''')
     return f'<div class="blueprints">{"".join(cards)}</div>'
 
 
@@ -365,11 +375,18 @@ def home():
     </div>
     {dial_block()}
   </div>
+  <div class="wrap">
+    <ul class="hero-facts" aria-label="Intimedev in brief">
+      <li><strong>14+ years</strong><span>building and supporting software</span></li>
+      <li><strong>3 markets</strong><span>Egypt, Australia, United Kingdom</span></li>
+      <li><strong>App to server</strong><span>code, hosting and support, one team</span></li>
+      <li><strong>Years, not weeks</strong><span>most clients stay for years</span></li>
+    </ul>
+  </div>
 </section>
 
 <section class="section" aria-labelledby="cap-title" style="padding-top:0">
   <div class="wrap">
-    <div class="hour-rule" aria-hidden="true"></div>
     {section_head('<span id="cap-title">We build it, connect it and keep it running.</span>', "Ten services, delivered by one experienced team for more than 14 years, for businesses in Egypt, Australia and the United Kingdom.")}
     {cap_groups(r)}
   </div>
@@ -411,9 +428,13 @@ def services_page():
     tiles = []
     for g, (name, text) in C.GROUPS.items():
         tiles.append(f'<div class="svc-group-title reveal"><h2>{name}</h2><p>{text}</p></div>')
-        for i, s in enumerate(x for x in C.SERVICES if x["group"] == g):
+        group = [x for x in C.SERVICES if x["group"] == g]
+        # Fill every row: 3 per row, a short last row splits its width (no empty cells).
+        full = len(group) - len(group) % 3 if len(group) % 3 else len(group)
+        for i, s in enumerate(group):
+            span = 4 if i < full else 12 // (len(group) - full)
             core = ' <span class="core">Core</span>' if s["core"] else ""
-            tiles.append(f'<a class="svc-tile reveal" style="--i:{i}" href="services/{s["slug"]}.html">{icon(s["icon"])}'
+            tiles.append(f'<a class="svc-tile reveal" style="--i:{i};--span:{span}" href="services/{s["slug"]}.html">{icon(s["icon"])}'
                          f'<h3>{e(s["name"])}{core}</h3><p>{e(s["summary"])}</p><span class="text-link">Details {icon("arrow")}</span></a>')
     body = f'''<section class="page-head">
   <div class="wrap">
