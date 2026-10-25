@@ -67,12 +67,18 @@
   --r-panel: 14px;
   --r-input: 8px;
 
-  /* Motion */
-  --ease-sun: cubic-bezier(0.3, 0, 0.2, 1);     /* sunrise: slow start, long settle */
-  --ease-sweep: cubic-bezier(0.65, 0, 0.35, 1);  /* dial hand */
+  /* Motion: three curves, one meaning each */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);    /* settle: entrances, hovers, presses, fades */
+  --ease-sweep: cubic-bezier(0.65, 0, 0.35, 1);  /* state moves: dial hand, rules drawn, back to now */
+  --ease-sun: cubic-bezier(0.3, 0, 0.2, 1);      /* the closing sun only */
+  --t-press: 100ms;
   --t-quick: 160ms;
   --t-base: 320ms;
+  --t-enter: 560ms;
   --t-slow: 720ms;
+  --rise: 12px;
+  --stagger: 50ms;
+  /* JS: sunrise 500 + 70ms per hour (max 1300) ease-out cubic; back to now 240 + 30ms per hour (max 600) = --ease-sweep */
 
   color-scheme: light;
 }

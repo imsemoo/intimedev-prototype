@@ -13,8 +13,8 @@
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/tokens.css?v=7"><link rel="stylesheet" href="assets/css/site.css?v=7">
-<script>(function(d){d.classList.add("js");try{var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");setTimeout(function(){d.classList.remove("is-arriving")},2500)}}catch(e){}})(document.documentElement)</script>
+<link rel="stylesheet" href="assets/css/tokens.css?v=9"><link rel="stylesheet" href="assets/css/site.css?v=9">
+<script>(function(d){d.classList.add("js");setTimeout(function(){if(!d.classList.contains("io"))d.classList.remove("js")},2500);try{var p=new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hourCycle:"h23",hour:"2-digit",minute:"2-digit"}).formatToParts(new Date()),g=function(k){return +p.find(function(x){return x.type==k}).value},h=g("hour")+g("minute")/60,c=Math.min(18,Math.max(6,h)),day=h>=6&&h<18,a=(180-(c-6)*15)*Math.PI/180,l=2.5+3*Math.abs(Math.cos(a)),s=d.style,q=function(n){return (Math.round(n*2)/2).toFixed(1)};s.setProperty("--cast-x",day?q(-Math.cos(a)*l)+"px":"0px");s.setProperty("--cast-y",day?q(Math.sin(a)*l+1.5)+"px":"0px");s.setProperty("--now-pos",q((c-6)/12*100));s.setProperty("--now-on",day?"1":"0");d.dataset.daylight=day?"day":"night";var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");s.setProperty("--ld-phase",-(Date.now()%1400)+"ms");setTimeout(function(){d.classList.remove("is-arriving")},2500)}}catch(e){}})(document.documentElement)</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Intimedev", "url": "https://intimedev.com/", "email": "info@intimedev.com", "telephone": "+20 115 388 6625", "areaServed": ["EG", "AU", "GB"]}</script>
 </head>
 <body>
@@ -71,7 +71,7 @@
   <rect class="node-shadow" x="252.5" y="198.0" width="147.0" height="56" rx="28"/>
   <rect class="hub" x="246.5" y="192.0" width="147.0" height="56" rx="28"/>
   <text class="hub-text" x="320.0" y="226.0" text-anchor="middle">Dashboard</text>
-  <circle class="pulse" r="5" style="offset-path: path('M426.0 88.4 L320 220')"/>
+  <circle class="pulse" r="5" style="--x0:426.0px;--y0:88.4px;--x1:320px;--y1:220px"/>
 </svg></div>
   <div class="reveal" style="--i:1">
     <p class="label">Blueprint</p>
@@ -90,7 +90,7 @@
   <rect class="node-shadow" x="285.5" y="198.0" width="81.0" height="56" rx="28"/>
   <rect class="hub" x="279.5" y="192.0" width="81.0" height="56" rx="28"/>
   <text class="hub-text" x="320.0" y="226.0" text-anchor="middle">API</text>
-  <circle class="pulse" r="5" style="offset-path: path('M469.9 112.5 L320 220')"/>
+  <circle class="pulse" r="5" style="--x0:469.9px;--y0:112.5px;--x1:320px;--y1:220px"/>
 </svg></div>
   <div class="reveal" style="--i:1">
     <p class="label">Blueprint</p>
@@ -109,7 +109,7 @@
   <rect class="node-shadow" x="274.5" y="198.0" width="103.0" height="56" rx="28"/>
   <rect class="hub" x="268.5" y="192.0" width="103.0" height="56" rx="28"/>
   <text class="hub-text" x="320.0" y="226.0" text-anchor="middle">Vault</text>
-  <circle class="pulse" r="5" style="offset-path: path('M426.0 88.4 L320 220')"/>
+  <circle class="pulse" r="5" style="--x0:426.0px;--y0:88.4px;--x1:320px;--y1:220px"/>
 </svg></div>
   <div class="reveal" style="--i:1">
     <p class="label">Blueprint</p>
@@ -160,7 +160,7 @@
     <div class="foot-base"><span>© <span data-year>2026</span> Intimedev</span><span>Egypt · Australia · United Kingdom</span></div>
   </div>
 </footer>
-<script src="assets/js/time.js?v=7" defer></script>
-<script src="assets/js/site.js?v=7" defer></script>
+<script src="assets/js/time.js?v=9" defer></script>
+<script src="assets/js/site.js?v=9" defer></script>
 </body>
 </html>

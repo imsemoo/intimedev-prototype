@@ -3,6 +3,57 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const root = document.documentElement;
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Run once the arrival cover has lifted (or at once if there is none).
+  const afterCover = (fn) => {
+    if (!root.classList.contains("is-arriving")) return fn();
+    const mo = new MutationObserver(() => {
+      if (!root.classList.contains("is-arriving")) { mo.disconnect(); fn(); }
+    });
+    mo.observe(root, { attributes: true, attributeFilter: ["class"] });
+  };
+
+  // Reveals first, so a later error cannot leave content hidden. The head script removes .js
+  // after 2.5s if this flag never appears.
+  root.classList.add("io");
+  const reveals = $$(".reveal");
+  if ("IntersectionObserver" in window) {
+    // Items that appear together stagger in reading order; anything entering from above just fades.
+    // On pages with a hero headline the first batch waits for the headline to land.
+    let base = $(".hero-copy") ? 240 : 0;
+    const io = new IntersectionObserver((entries) => {
+      entries.filter((e) => e.isIntersecting)
+        .sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top) || (a.boundingClientRect.left - b.boundingClientRect.left))
+        .forEach((e, k) => {
+          const el = e.target, above = e.boundingClientRect.top < 0;
+          el.style.setProperty("--d", above ? "0ms" : `${base + Math.min(k, 4) * 50}ms`);
+          el.classList.toggle("no-rise", above);
+          el.classList.add("is-in");
+          io.unobserve(el);
+          el.addEventListener("transitionend", () => { el.style.removeProperty("--d"); }, { once: true });
+        });
+      base = 0;
+    }, { rootMargin: "0px 0px -6% 0px" });
+    afterCover(() => reveals.forEach((el) => io.observe(el)));
+    // Keyboard focus never lands on content that is still fading in.
+    document.addEventListener("focusin", (ev) => {
+      const el = ev.target.closest && ev.target.closest(".reveal:not(.is-in)");
+      if (el) { el.classList.add("is-in"); io.unobserve(el); }
+    });
+  } else reveals.forEach((el) => el.classList.add("is-in"));
+
+  // Day path: the line runs and each step fills as the reader reaches it.
+  const steps = $$("[data-day] li");
+  if ("IntersectionObserver" in window) {
+    const dayIO = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("is-lit");
+      e.target.parentElement.classList.add("is-run");
+      dayIO.unobserve(e.target);
+    }), { rootMargin: "0px 0px -45% 0px" });
+    steps.forEach((li) => dayIO.observe(li));
+  } else steps.forEach((li) => li.classList.add("is-lit"));
 
   // Header gains a rule once the page scrolls.
   const head = $("[data-head]");
@@ -13,11 +64,15 @@
     new IntersectionObserver(([e]) => head.classList.toggle("is-scrolled", !e.isIntersecting)).observe(mark);
   }
 
-  // Theme: system by default; the toggle stores an explicit choice.
+  // Theme: system by default; the toggle stores an explicit choice. The light changes with a short crossfade.
   $$("[data-theme-toggle]").forEach((btn) => btn.addEventListener("click", () => {
     const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-    root.dataset.theme = dark ? "light" : "dark";
-    try { localStorage.setItem("theme", root.dataset.theme); } catch (e) { /* storage blocked: theme lasts this page */ }
+    const next = dark ? "light" : "dark";
+    const apply = () => {
+      root.dataset.theme = next;
+      try { localStorage.setItem("theme", next); } catch (e) { /* storage blocked: theme lasts this page */ }
+    };
+    if (document.startViewTransition && !reduced()) document.startViewTransition(apply); else apply();
   }));
 
   // Mobile menu: native modal dialog (focus trap, Escape and inert background come with it).
@@ -25,27 +80,17 @@
   const openBtn = $("[data-menu-open]");
   if (menu && openBtn && typeof menu.showModal === "function") {
     openBtn.addEventListener("click", () => menu.showModal());
-    $("[data-menu-close]", menu).addEventListener("click", () => menu.close());
+    const closeBtn = $("[data-menu-close]", menu);
+    if (closeBtn) closeBtn.addEventListener("click", () => menu.close());
     $$("a", menu).forEach((a) => a.addEventListener("click", () => menu.close()));
     menu.addEventListener("close", () => openBtn.focus());
     matchMedia("(min-width: 881px)").addEventListener("change", (m) => { if (m.matches && menu.open) menu.close(); });
   }
 
-  // Sunrise reveal for content entering the viewport.
-  const reveals = $$(".reveal");
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-      if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
-    }), { rootMargin: "0px 0px -6% 0px" });
-    reveals.forEach((el) => io.observe(el));
-  } else reveals.forEach((el) => el.classList.add("is-in"));
-
-  // Day path: steps fill in as they pass the middle of the screen.
-  $$("[data-day] li").forEach((li) => new IntersectionObserver(([e]) => { if (e.isIntersecting) li.classList.add("is-lit"); },
-    { rootMargin: "0px 0px -45% 0px" }).observe(li));
-
-  // Page loader: shown on internal navigation and kept on the next page until its fonts are ready.
-  // It never delays navigation; the browser navigates at once and the loader only covers the wait.
+  // Page loader. It never delays navigation: the browser navigates at once. CSS shows the cover only
+  // if the next page has not committed after 240ms, so fast clicks never flash it. The next page keeps
+  // the cover only when it was actually visible here.
+  let leaveTimer;
   document.addEventListener("click", (ev) => {
     const a = ev.target.closest("a[href]");
     if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
@@ -53,17 +98,28 @@
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin || !/^https?:$/.test(url.protocol)) return;
     if (url.pathname === location.pathname && url.search === location.search) return;
-    try { sessionStorage.setItem("idv-nav", "1"); } catch (e) { /* storage blocked: no arrival cover */ }
+    root.style.setProperty("--ld-phase", `${-(Date.now() % 1400)}ms`);
     root.classList.add("is-leaving");
+    clearTimeout(leaveTimer);
+    leaveTimer = setTimeout(() => root.classList.remove("is-leaving"), 3000);   // aborted or slow: never a dead end
+  });
+  addEventListener("keydown", (e) => { if (e.key === "Escape") root.classList.remove("is-leaving"); });
+  addEventListener("pagehide", () => {
+    const l = $(".loader");
+    if (root.classList.contains("is-leaving") && l && +getComputedStyle(l).opacity > 0.5) {
+      try { sessionStorage.setItem("idv-nav", "1"); } catch (e) { /* storage blocked: no arrival cover */ }
+    }
   });
   if (root.classList.contains("is-arriving")) {
-    const fonts = document.fonts ? document.fonts.ready : Promise.resolve();
-    Promise.race([fonts, new Promise((r) => setTimeout(r, 700))]).then(() => {
-      setTimeout(() => root.classList.remove("is-arriving"), Math.max(0, 240 - performance.now()));
-    });
+    const fonts = document.fonts
+      ? Promise.all([document.fonts.load('700 1em "Funnel Display"'), document.fonts.load('400 1em "Funnel Sans"')])
+      : Promise.resolve();
+    Promise.race([fonts, new Promise((r) => setTimeout(r, 700))]).then(() => root.classList.remove("is-arriving"));
   }
   // The back/forward cache can restore a page with the cover still on.
-  window.addEventListener("pageshow", (ev) => { if (ev.persisted) root.classList.remove("is-leaving", "is-arriving"); });
+  addEventListener("pageshow", (ev) => {
+    if (ev.persisted) { clearTimeout(leaveTimer); root.classList.remove("is-leaving", "is-arriving"); }
+  });
 
   $$("[data-year]").forEach((el) => { el.textContent = new Date().getFullYear(); });
 
@@ -115,10 +171,16 @@
       done.hidden = true;
       $("#f-desc", form).focus();
     });
-    $("[data-copy]", form).addEventListener("click", async (ev) => {
-      const label = ev.currentTarget.querySelector("span");
-      try { await navigator.clipboard.writeText(preview.textContent); label.textContent = "Copied"; }
-      catch (e) { label.textContent = "Select the text above to copy"; }
+    const copyBtn = $("[data-copy]", form);
+    const copyLabel = copyBtn.querySelector("span");
+    const copyText = copyLabel.textContent;
+    let copyTimer;
+    copyBtn.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(preview.textContent); copyLabel.textContent = "Copied"; }
+      catch (e) { copyLabel.textContent = "Select the text above to copy"; }
+      if (!reduced()) copyLabel.animate([{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 160, easing: "cubic-bezier(0.23, 1, 0.32, 1)" });
+      clearTimeout(copyTimer);
+      copyTimer = setTimeout(() => { copyLabel.textContent = copyText; }, 2000);
     });
   }
 })();

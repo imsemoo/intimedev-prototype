@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import content as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-V = "7"  # asset version: bump after CSS/JS changes
+V = "9"  # asset version: bump after CSS/JS changes
 # The 404 page is served at any depth, so its links must be absolute to the Pages site root.
 BASE404 = "/intimedev-prototype/"
 NAV = [("services.html", "Services"), ("work.html", "Work"), ("about.html", "About"), ("contact.html", "Contact")]
@@ -136,7 +136,8 @@ def dial_block():
         f'<span class="time">--:--</span><span class="state">&nbsp;</span></div>' for m in C.MARKETS)
     return f'''<div class="dial-block" data-dial>
   {dial_svg()}
-  <div class="dial-readout" aria-live="polite">{cities}</div>
+  <div class="dial-readout">{cities}</div>
+  <p class="vh" role="status" data-dial-status></p>
   <p class="dial-note"><span data-dial-note>Drag the sun to compare working hours.</span> <button type="button" data-dial-now hidden>Back to now</button></p>
 </div>'''
 
@@ -168,7 +169,7 @@ def blueprint_svg(bp, uid):
   <rect class="node-shadow" x="{cx - hw / 2 + 6:.1f}" y="{cy - 28 + 6:.1f}" width="{hw:.1f}" height="56" rx="28"/>
   <rect class="hub" x="{cx - hw / 2:.1f}" y="{cy - 28:.1f}" width="{hw:.1f}" height="56" rx="28"/>
   <text class="hub-text" x="{cx:.1f}" y="{cy + 6:.1f}" text-anchor="middle">{e(hub)}</text>
-  <circle class="pulse" r="5" style="offset-path: path('M{px:.1f} {py:.1f} L{cx:.0f} {cy:.0f}')"/>
+  <circle class="pulse" r="5" style="--x0:{px:.1f}px;--y0:{py:.1f}px;--x1:{cx:.0f}px;--y1:{cy:.0f}px"/>
 </svg>'''
 
 
@@ -199,7 +200,7 @@ def head(title, desc, r, extra_css=""):
 <link rel="preload" href="{r}assets/fonts/funnel-display.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/funnel-sans.woff2" as="font" type="font/woff2" crossorigin>
 {css}
-<script>(function(d){{d.classList.add("js");try{{var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){{sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");setTimeout(function(){{d.classList.remove("is-arriving")}},2500)}}}}catch(e){{}}}})(document.documentElement)</script>
+<script>(function(d){{d.classList.add("js");setTimeout(function(){{if(!d.classList.contains("io"))d.classList.remove("js")}},2500);try{{var p=new Intl.DateTimeFormat("en-GB",{{timeZone:"Africa/Cairo",hourCycle:"h23",hour:"2-digit",minute:"2-digit"}}).formatToParts(new Date()),g=function(k){{return +p.find(function(x){{return x.type==k}}).value}},h=g("hour")+g("minute")/60,c=Math.min(18,Math.max(6,h)),day=h>=6&&h<18,a=(180-(c-6)*15)*Math.PI/180,l=2.5+3*Math.abs(Math.cos(a)),s=d.style,q=function(n){{return (Math.round(n*2)/2).toFixed(1)}};s.setProperty("--cast-x",day?q(-Math.cos(a)*l)+"px":"0px");s.setProperty("--cast-y",day?q(Math.sin(a)*l+1.5)+"px":"0px");s.setProperty("--now-pos",q((c-6)/12*100));s.setProperty("--now-on",day?"1":"0");d.dataset.daylight=day?"day":"night";var t=localStorage.getItem("theme");if(t)d.dataset.theme=t;if(sessionStorage.getItem("idv-nav")){{sessionStorage.removeItem("idv-nav");d.classList.add("is-arriving");s.setProperty("--ld-phase",-(Date.now()%1400)+"ms");setTimeout(function(){{d.classList.remove("is-arriving")}},2500)}}}}catch(e){{}}}})(document.documentElement)</script>
 <script type="application/ld+json">{json.dumps(org)}</script>
 </head>'''
 
@@ -685,10 +686,10 @@ def contact_page():
         <button class="btn btn-primary" type="submit">Prepare my email {icon("arrow")}</button>
       </div>
       <div class="form-done" data-done hidden tabindex="-1">
-        <h3>Your email is ready.</h3>
-        <p class="copy">Your email app should have opened with the message below. If it did not, copy it and send it to <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>, or send it on WhatsApp.</p>
-        <pre data-preview></pre>
-        <div class="row">
+        <h3 style="--i:0">Your email is ready.</h3>
+        <p class="copy" style="--i:1">Your email app should have opened with the message below. If it did not, copy it and send it to <a href="mailto:{C.EMAIL}">{C.EMAIL}</a>, or send it on WhatsApp.</p>
+        <pre data-preview style="--i:2"></pre>
+        <div class="row" style="--i:3">
           <button class="btn btn-line" type="button" data-copy>{icon("copy")}<span>Copy message</span></button>
           <a class="btn btn-line" data-wa href="{C.WHATSAPP}" rel="noopener">{icon("chat")}Send on WhatsApp</a>
           <button class="btn btn-line" type="button" data-edit>Edit</button>
@@ -745,7 +746,7 @@ def brand_page():
           ("Egyptian blue", "#1034a6", "#fff", "Primary brand colour. The cast shadow, primary buttons, links, the closing band.", "10.2:1 with white"),
           ("Solar", "#ff5a1f", "#0e1726", "The sun. Only for 'now': the sun in the mark, the dial, the hour-rule marker.", "Graphics only on light (3.1:1)"),
           ("Blue wash", "#e8ecfb", "#1034a6", "Blueprint grounds and soft cast shadows on panels.", "Blue text 8.6:1")]
-    swatches = "".join(f'<div class="sw reveal"><div class="chip" style="background:{h};color:{fg}">{n}</div><dl><dt>Hex</dt><dd>{h.upper()}</dd><dt>Role</dt><dd>{role}</dd><dt>Contrast</dt><dd>{c}</dd></dl></div>' for n, h, fg, role, c in sw)
+    swatches = "".join(f'<div class="sw"><div class="chip" style="background:{h};color:{fg}">{n}</div><dl><dt>Hex</dt><dd>{h.upper()}</dd><dt>Role</dt><dd>{role}</dd><dt>Contrast</dt><dd>{c}</dd></dl></div>' for n, h, fg, role, c in sw)
     neutrals = [("#ffffff", "bg"), ("#f2f4f7", "surface"), ("#e7eaf0", "surface-2"), ("#dde2e9", "line"), ("#808a9c", "line-input"), ("#5d6778", "text-3"), ("#475163", "text-2"), ("#0a101c", "night bg")]
     nrow = "".join(f'<div><b style="background:{h}"></b>{n}<br>{h}</div>' for h, n in neutrals)
     type_rows = [("Hero", "Funnel Display 700", "clamp(2.6rem, 6vw, 5.6rem) / 0.98, -0.035em", "Software built on time."),
@@ -758,7 +759,7 @@ def brand_page():
                  ("Label, metadata", "Geist Mono 500, uppercase", "0.75rem, +0.08em", "CAIRO 14:32"),
                  ("Case meta, stack", "Geist Mono 500", "0.88rem", "Laravel · PostgreSQL")]
     trows = "".join(f'<tr><td>{a}</td><td>{b}</td><td class="mono">{c}</td><td>{d}</td></tr>' for a, b, c, d in type_rows)
-    icons_html = "".join(f'<figure class="reveal"><svg aria-hidden="true"><use href="assets/icons/icons.svg#{s["icon"]}"/></svg><figcaption>{e(s["name"])}</figcaption></figure>' for s in C.SERVICES)
+    icons_html = "".join(f'<figure><svg aria-hidden="true"><use href="assets/icons/icons.svg#{s["icon"]}"/></svg><figcaption>{e(s["name"])}</figcaption></figure>' for s in C.SERVICES)
     contrast = [("Ink on white", "17.6:1", "Body and headings"), ("Text-2 #475163 on white", "8.0:1", "Secondary text"),
                 ("Text-3 #5d6778 on surface", "5.2:1", "Labels and metadata"), ("White on Egyptian blue", "10.2:1", "Buttons, closing band"),
                 ("Solar text #c2410c on white", "5.2:1", "Required-field marks"), ("Accent #7d95ff on night", "6.9:1", "Links and buttons in dark theme"),
@@ -808,12 +809,12 @@ def brand_page():
   </div>
   <h3 class="reveal" style="margin:56px 0 20px">Correct and incorrect use</h3>
   <div class="dont">
-    <figure class="reveal"><div class="stage is-ok"><img src="assets/brand/logo.svg" width="155" height="20" alt=""></div><figcaption>Use the supplied files, on white, surface grey or night.</figcaption></figure>
-    <figure class="reveal"><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="transform:scaleX(1.4)"></div><figcaption>Do not stretch or condense.</figcaption></figure>
-    <figure class="reveal"><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="filter:hue-rotate(140deg)"></div><figcaption>Do not recolour. The sun is always solar orange.</figcaption></figure>
-    <figure class="reveal"><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="transform:scaleX(-1)"></div><figcaption>Do not mirror: the light always comes from the upper left.</figcaption></figure>
-    <figure class="reveal"><div class="stage" style="background:linear-gradient(135deg,#7c3aed,#ec4899)"><img src="assets/brand/logo.svg" width="155" height="20" alt=""></div><figcaption>Do not place on gradients or busy photos.</figcaption></figure>
-    <figure class="reveal"><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))"></div><figcaption>Do not add effects. The mark already has its shadow.</figcaption></figure>
+    <figure><div class="stage is-ok"><img src="assets/brand/logo.svg" width="155" height="20" alt=""></div><figcaption>Use the supplied files, on white, surface grey or night.</figcaption></figure>
+    <figure><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="transform:scaleX(1.4)"></div><figcaption>Do not stretch or condense.</figcaption></figure>
+    <figure><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="filter:hue-rotate(140deg)"></div><figcaption>Do not recolour. The sun is always solar orange.</figcaption></figure>
+    <figure><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="transform:scaleX(-1)"></div><figcaption>Do not mirror: the light always comes from the upper left.</figcaption></figure>
+    <figure><div class="stage" style="background:linear-gradient(135deg,#7c3aed,#ec4899)"><img src="assets/brand/logo.svg" width="155" height="20" alt=""></div><figcaption>Do not place on gradients or busy photos.</figcaption></figure>
+    <figure><div class="stage"><img src="assets/brand/logo.svg" width="155" height="20" alt="" style="filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))"></div><figcaption>Do not add effects. The mark already has its shadow.</figcaption></figure>
   </div>
 </div></section>
 
@@ -845,7 +846,7 @@ def brand_page():
     <div class="tile g-span-6 reveal"><p class="label">The dial</p><p>Sky arc, horizon, twelve-section plate. Used for the hero and for any comparison of time.</p></div>
     <div class="tile g-span-6 reveal"><p class="label">The hour rule</p><p>A section ruler with twelve ticks and the sun at the current hour in Cairo.</p></div>
     <div class="tile g-span-4 reveal"><p class="label">The cast shadow</p><p>Hard offset shadows on buttons and panels. Their direction follows the sun in Cairo through the day and disappears at night.</p></div>
-    <div class="tile g-span-4 reveal"><p class="label">The blueprint</p><p>Systems drawn as nodes on a blue grid, each node casting a blue shadow, one orange grain of data moving.</p></div>
+    <div class="tile g-span-4 reveal"><p class="label">The blueprint</p><p>Systems drawn as nodes on a blue grid, each node casting a blue shadow; one orange grain of data arrives at the hub as the drawing appears.</p></div>
     <div class="tile g-span-4 reveal"><p class="label">The day path</p><p>Processes laid out as a line through the day, each step a point that fills in as you reach it.</p></div>
   </div>
 </div></section>
@@ -867,9 +868,9 @@ def brand_page():
 <section class="g-sec" id="motion"><div class="wrap">
   {g_head("motion", "09", "Rise, sweep, cast.", "Motion follows the sun: things rise and settle, dial hands sweep to a new state, shadows lengthen. Nothing floats, bounces or loops for decoration. All of it stops for visitors who ask for reduced motion.")}
   <div class="motion-demos">
-    <div class="tile reveal"><div class="stage m-rise" aria-hidden="true"><div style="width:100%"><span></span><span></span><span></span></div></div><p class="label">Rise</p><p class="cap">Content enters from 24px below. 720ms, cubic-bezier(.3,0,.2,1), 60ms stagger.</p></div>
-    <div class="tile reveal"><div class="stage m-sweep" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--line-strong)"/><path class="hand" d="M60 60 L60 16" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/><circle cx="60" cy="60" r="6" fill="var(--text)"/></svg></div><p class="label">Sweep</p><p class="cap">State changes rotate like a dial hand. cubic-bezier(.65,0,.35,1).</p></div>
-    <div class="tile reveal"><div class="stage m-cast" aria-hidden="true"><span class="btn-demo">Start a project</span></div><p class="label">Cast</p><p class="cap">Hover lengthens the shadow; press shortens it. The direction follows Cairo time.</p></div>
+    <div class="tile reveal"><div class="stage m-rise" aria-hidden="true"><div style="width:100%"><span></span><span></span><span></span></div></div><p class="label">Rise</p><p class="cap">Content rises 12px and settles. 560ms, cubic-bezier(.23,1,.32,1), 50ms stagger. The page head rises 18px over 720ms.</p></div>
+    <div class="tile reveal"><div class="stage m-sweep" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--line-strong)"/><path class="hand" d="M60 60 L60 16" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/><circle cx="60" cy="60" r="6" fill="var(--text)"/></svg></div><p class="label">Sweep</p><p class="cap">State changes move like a dial hand. cubic-bezier(.65,0,.35,1), 240 to 600ms by distance.</p></div>
+    <div class="tile reveal"><div class="stage m-cast" aria-hidden="true"><span class="cast-demo"><span class="cast"></span><span class="btn-demo">Start a project</span></span></div><p class="label">Cast</p><p class="cap">Hover lengthens the shadow; press shortens it. The direction follows Cairo time.</p></div>
   </div>
 </div></section>
 

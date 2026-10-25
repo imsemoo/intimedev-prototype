@@ -33,7 +33,7 @@ Home, Services, 10 service pages, Work, About, Contact, Brand guidelines, 404.
 
 | Page | Mobile perf | Desktop perf | Accessibility | Best practices | Mobile LCP | CLS | TBT |
 |---|---|---|---|---|---|---|---|
-| Home | 98 | 100 | 100 | 100 | 2.1 s | 0 | 80 ms |
+| Home | 98 | 100 | 100 | 100 | 2.2 s | 0 | 0 ms (was 80 ms before the motion pass) |
 | Contact | 99 | 100 | 100 | 100 | 1.9 s | 0 | 0 ms |
 | ERP service | 98 | 100 | 100 | 100 | 1.9 s | 0 | 50 ms |
 | Work | 99 | 100 | 100 | 100 | 2.1 s | 0 | 0 ms |
@@ -49,6 +49,10 @@ Weight: no images, three self-hosted fonts (about 58 KB total), two small script
 - Page loader: shown only on internal navigation, never delays it, removed once fonts are ready (2.5 s failsafe), cleared on back/forward cache restore.
 - The dial is a labelled group with a description; its sun is a keyboard slider.
 - NOT VERIFIED: screen reader pass with NVDA or VoiceOver (not available in this environment); Safari and Firefox (only Chrome tested); iOS Safari zoom behaviour.
+
+## Motion pass (25 Oct 2026)
+
+Audited from four angles (craft, missing motion, performance, accessibility and brand), then 22 changes plus 9 fixes from an adversarial review. Three curves with one meaning each (settle, sweep, sun). Hero choreography: headline, then the sunrise scaled to distance, then content. The loader shows only on real waits. Blueprint grains are composited and play once. The dial drag follows the finger 1:1. The Back to now sweep sets in the west at night. One announcement per drag. Clocks tick on the minute. Verified: 21 functional checks, no overflow at 320 to 1920, touch drag (Chrome CDP), night behaviour with a faked clock. NOT VERIFIED: iOS Safari touch, bfcache restore, navigations of 240 to 270 ms.
 
 ## Known limitations and remaining work
 
